@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Portfolio Details</title>
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/css/style.css" rel="stylesheet" />
+  <style>
+    /* Style for the project image */
+    #project-image {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Container for YouTube iframe */
+    #yt-demo-iframe {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling project info list */
+    .portfolio-info ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .portfolio-info ul li {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .portfolio-info ul li strong {
+      width: 130px;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+  <main id="main" class="py-5">
+    <div id="portfolio-details" class="portfolio-details">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8">
+            <h2 id="portfolio-title" class="portfolio-title">Loading...</h2>
+            <img id="project-image" src="" alt="Project Image" class="img-fluid" />
+          </div>
+
+          <div class="col-lg-4 portfolio-info">
+            <h3>Project information</h3>
+            <ul id="project-info-list"></ul>
+            <p id="project-description"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Projects data with YouTube embed URLs
+    const projects = {
+      aboutme: {
+        title: "About Me Page",
+        image: "assets/img/portfolio/det2.png",
+        info: {
+          Category: "HTML/CSS",
+          "Project date": "January 2024"
+        },
+        description: "This is a personal About Me webpage created using HTML and CSS. It introduces myself, my background, and my interests in a clean, responsive layout."
+      },
+      budgetpal: {
+        title: "BudgetPal",
+        image: "assets/img/portfolio/budgetpal.png",
+        info: {
+          Category: "Java/HTML/CSS",
+          "Project date": "February 2024",
+          "Project URL": "https://drive.google.com/file/d/1XVXiMtL-zLkOtOCNVSgaRDIG6FqMtb74/view?usp=sharing",
+          "Source Code": "to add"
+        },
+        description: "A simple Java application that allows users to budget and input their daily expenses which is crucial for financial management."
+      },
+      rootpoint: {
+        title: "RootPoint",
+        image: "assets/img/portfolio/lp.png",
+        info: {
+          Category: "Python/CSS",
+          "Project date": "May 2025",
+          "Project URL": "https://drive.google.com/file/d/1FN-kL65hdlVTEmGfpICHsAX6nu05vxpR/view?usp=sharing",
+          "Project Documentation": "https://drive.google.com/file/d/1eP29Fjkrlxdfaq1OrppK17w4hz5-AaFo/view?usp=sharing",
+          "YT Demo": "https://www.youtube.com/embed/r3PeZJGMBCQ?si=DvFZVGmthd-T5oc4"
+        },
+        description: "A Python web application that finds roots of an equation with 6 different numerical methods."
+      }
+      // Add more projects here...
+    };
+
+    // Utility to get URL query parameter
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Create list item for project info; links are clickable
+    function createListItem(key, value) {
+      const urlPattern = /^https?:\/\//i;
+      if (urlPattern.test(value)) {
+        let linkText = value;
+        if (value.includes('github.com')) {
+          linkText = 'GitHub Repository';
+        } else if (key === 'Project URL') {
+          linkText = 'View Project';
+        } else if (key === 'YT Demo') {
+          linkText = 'Watch Demo';
+        } else if (key === 'Project Documentation') {
+          linkText = 'View Documentation';
+        }
+        return `<li><strong>${key}</strong>: <a href="${value}" target="_blank" rel="noopener noreferrer">${linkText}</a></li>`;
+      }
+      return `<li><strong>${key}</strong>: ${value}</li>`;
+    }
+
+    // Load project details dynamically
+    function loadProject(projectKey) {
+      const project = projects[projectKey];
+      if (!project) {
+        document.getElementById("portfolio-title").textContent = "Project Not Found";
+        document.getElementById("project-info-list").innerHTML = "";
+        document.getElementById("project-description").textContent = "Sorry, the project you are looking for does not exist.";
+        document.getElementById("project-image").style.display = "none";
+        return;
+      }
+
+      document.getElementById("portfolio-title").textContent = project.title;
+
+      // Show project image
+      const imgEl = document.getElementById("project-image");
+      imgEl.src = project.image;
+      imgEl.alt = `${project.title} Image`;
+      imgEl.style.display = "block";
+
+      // Populate project info list (exclude YT Demo here)
+      const infoList = document.getElementById("project-info-list");
+      infoList.innerHTML = "";
+      for (const [key, value] of Object.entries(project.info)) {
+        if (key !== "YT Demo") {
+          infoList.innerHTML += createListItem(key, value);
+        }
+      }
+
+      // Set project description
+      const desc = document.getElementById("project-description");
+      desc.textContent = project.description;
+
+      // Remove existing iframe if any
+      const existingIframe = document.getElementById('yt-demo-iframe');
+      if (existingIframe) {
+        existingIframe.remove();
+      }
+
+      // Embed YouTube iframe if YT Demo link exists
+      if (project.info["YT Demo"]) {
+        const ytContainer = document.createElement('div');
+        ytContainer.style.marginTop = '20px';
+
+        const iframe = document.createElement('iframe');
+        iframe.width = "560";
+        iframe.height = "315";
+        iframe.src = project.info["YT Demo"];
+        iframe.title = "YouTube video player";
+        iframe.frameBorder = "0";
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        iframe.id = "yt-demo-iframe";
+        iframe.style.maxWidth = "100%";
+        iframe.style.borderRadius = "8px";
+
+        ytContainer.appendChild(iframe);
+
+        desc.parentNode.insertBefore(ytContainer, desc.nextSibling);
+      }
+    }
+
+    // On page load, get project key from URL and load project
+    window.addEventListener('DOMContentLoaded', () => {
+      const projectKey = getQueryParam('project');
+      loadProject(projectKey);
+    });
+  </script>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
